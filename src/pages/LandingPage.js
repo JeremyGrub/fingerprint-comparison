@@ -18,7 +18,7 @@ const LandingPage = () => {
                     <h2 className="black-text">Welcome to the Latent Lab</h2>
                     <p className="landing-page-paragraph">
                         This website is intended for Forensic Science students who are learning to compare fingerprints.
-                        Latent print examiners will typically do comparisons on-screen whether it’s in Photoshop or some other software.
+                        Latent print examiners will typically do comparisons on-screen whether it’s in Photoshop or another type of software.
                         Most schools teach how to do comparisons on paper with magnifiers. This website will allow you to compare fingerprints 
                         on screen and go through a series of mock cases.
                     </p>
