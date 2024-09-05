@@ -1,13 +1,404 @@
-body {
+/* General styling */
+html, body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-color: #727272;
+  text-align: center;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+header {
+  background-color: #333;
+  color: white;
+  padding: 0.1rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Header container */
+.header-container {
+  display: flex;
+  justify-content: center; /* Center the title */
+  align-items: center;
+  position: relative; /* Allows positioning the home button */
+  background-color: #333;
+  color: white;
+  padding: 1.5rem;
+}
+
+/* Title centered in the header */
+.header-title {
+  margin: 0;
+  font-size: 2rem;
+  flex-grow: 1; /* This ensures the title takes up the middle space */
+  text-align: center; /* Ensures the title stays centered */
+}
+
+/* Home link on the right */
+.header-nav {
+  position: absolute;
+  right: 20px; /* Adjust to move the link to the right edge */
+  top: 50%;
+  transform: translateY(-50%); /* Vertically center the link */
+}
+
+.home-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.home-link:hover {
+  background-color: black;
+}
+
+
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  flex-shrink: 0;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Landing page specific styling */
+.landing-page-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: calc(100vh - 300px); /* Full viewport height minus header and footer */
+  text-align: center; /* Center text within the box */
+  padding: 0 2rem; /* Add some padding for small screens */
+}
+
+.landing-page-content {
+  max-width: 800px; /* Limit the width to keep the content neat */
+  margin: 0 auto;
+  line-height: 1.6; /* Increase line height for better readability */
+  font-size: 1.1rem; /* Adjust font size for readability */
+  color: #fff;
+}
+
+/* Button styling for landing page */
+.mock-case-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+  margin-top: 1.5rem; /* Add some space above the button */
+}
+
+.mock-case-button:hover {
+  background-color: #0056b3;
+}
+
+.mock-case-button:focus {
+  outline: none;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  max-width: 1200px;
+  flex-grow: 1;
+}
+
+.canvas {
+  border: 1px solid #000000;
+  margin: 1rem;
+  height: 500px;
+  width: 500px;
+}
+
+.select-container {
+  margin: 0.5rem 0;
+}
+
+select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 1rem;
+  background-color: #f8f8f8;
+  transition: border-color 0.3s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+select:hover {
+  border-color: #0056b3;
+}
+
+/* Button styling for mock cases */
+.mock-cases-list {
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  text-align: center;
+}
+
+.mock-case-item {
+  margin: 0.5rem 0;
+}
+
+.mock-case-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.mock-case-button:hover {
+  background-color: #0056b3;
+}
+
+.mock-case-button:focus {
+  outline: none;
+}
+
+h2 {
+  margin-bottom: 0px;
+}
+
+.submission-title {
+  margin-bottom: 30px;
+}
+
+/* Submission page layout with grid */
+.submission-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.submission-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  gap: 2rem; /* Increase space between cards */
+  justify-items: center; /* Center cards within their grid cells */
+  margin-bottom: 2rem; /* Space at the bottom for the submit button */
+}
+
+.form-card {
+  background-color: #444;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 300px; /* Width of each card */
+  height: 200px; /* Fixed height for consistency */
+  color: #fff;
+}
+
+.form-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.form-card div {
+  margin-bottom: 0.5rem;
+}
+
+.form-card label {
+  display: inline-block;
+  width: 150px;
+  text-align: center;
+  margin-right: 10px;
+  font-size: 0.9rem;
+}
+
+.form-card input[type="text"],
+.form-card input[type="email"],
+.form-card select {
+  width: calc(100% - 100px);
+  padding: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+button[type="submit"] {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin: 0 auto;
+  display: block;
+  width: 200px; 
+  max-width: 100%; 
+}
+
+/* Centered paragraph styling */
+.landing-page-paragraph {
+  max-width: 800px; /* Limit the width to keep the text neat */
+  margin: 0 auto; /* Center the paragraph by setting auto margins */
+  text-align: center; /* Center the text within the paragraph */
+  line-height: 1.6; /* Increase line height for better readability */
+  padding: 1rem; /* Add some padding for spacing */
+  color: #fff; /* Ensure text color is visible (adjust as needed) */
+  font-size: 1.1rem; /* Adjust font size for readability */
+}
+
+/* Split screen container */
+.split-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+  margin-top: 75px;
+}
+
+/* Left side */
+.split-left {
+  flex: 1;
+  padding-right: 2rem;
+  text-align: left;
+  color: #fff;
+}
+
+/* Right side */
+.split-right {
+  flex: 1;
+  padding-left: 2rem;
+  text-align: center;
+}
+
+/* Bullet points */
+.split-left ul {
+  list-style-type: disc;
+  margin: 1rem 0 0 1.5rem;
+  padding: 0;
+}
+
+/* Mock cases title */
+.split-right h2 {
+  margin-bottom: 1rem;
+}
+
+/* Button styling (reuse existing styles if needed) */
+.split-right .mock-case-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.split-right .mock-case-button:hover {
+  background-color: #0056b3;
+}
+
+.split-right .mock-case-button:focus {
+  outline: none;
+}
+
+.black-text {
+  color: black;
+}
+
+/* Center the submit button below the grid */
+.submit-container {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.submit-button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+  width: 200px; /* Set fixed width for consistency */
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.list-space{
+  margin-bottom: 15px;
+}
+
+.go-to-submission{
+  margin-top: -15px;
+}
+
+/* Popup message styling */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the popup */
+  background-color: #28a745;
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  font-size: 1.2rem;
+  text-align: center;
+  animation: fadeInOut 5s ease-in-out;
+}
+
+/* Optional animation for fading effect */
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
 }
