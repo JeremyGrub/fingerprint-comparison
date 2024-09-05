@@ -1,4 +1,4 @@
-#Capstone Project
+# Capstone Project
 
 For my capstone, I am creating a webapp that allows students to practice comparing fingerprints on screen. I am using my background in Forensics to fill an area that is missing in forensic education. Comparisons are professionally done on screen, but schools continue to do them on paper with magnifiers.
 
