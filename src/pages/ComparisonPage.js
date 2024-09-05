@@ -64,6 +64,7 @@ const ComparisonPage = () => {
     };
     
 
+    // Define the handleCanvasClick function
     const handleCanvasClick = (editor) => {
         if (editor && editor.canvas) {
             editor.canvas.on('mouse:down', (event) => {
@@ -72,6 +73,20 @@ const ComparisonPage = () => {
             });
         }
     };
+
+    useEffect(() => {
+        if (knownEditor) {
+            loadImageToCanvas(knownEditor, selectedPrint);
+            handleCanvasClick(knownEditor); // Call the function within the effect
+        }
+    }, [knownEditor, selectedPrint, handleCanvasClick]); // Add handleCanvasClick to dependencies
+
+    useEffect(() => {
+        if (latentEditor) {
+            loadImageToCanvas(latentEditor, selectedLatentPrint);
+            handleCanvasClick(latentEditor); // Call the function within the effect
+        }
+    }, [latentEditor, selectedLatentPrint, handleCanvasClick]); // Add handleCanvasClick to dependencies
 
     useEffect(() => {
         if (knownEditor) {
