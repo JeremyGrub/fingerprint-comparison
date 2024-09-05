@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -63,44 +63,29 @@ const ComparisonPage = () => {
         editor.canvas.add(dot);
     };
     
-
-    // Define the handleCanvasClick function
-    const handleCanvasClick = (editor) => {
+    // Memoize the handleCanvasClick function
+    const handleCanvasClick = useCallback((editor) => {
         if (editor && editor.canvas) {
             editor.canvas.on('mouse:down', (event) => {
                 const pointer = editor.canvas.getPointer(event.e);
                 addDot(editor, pointer);
             });
         }
-    };
+    }, []); // Empty dependency array so this function won't change
 
     useEffect(() => {
         if (knownEditor) {
             loadImageToCanvas(knownEditor, selectedPrint);
-            handleCanvasClick(knownEditor); // Call the function within the effect
+            handleCanvasClick(knownEditor); // Call the memoized function
         }
-    }, [knownEditor, selectedPrint, handleCanvasClick]); // Add handleCanvasClick to dependencies
+    }, [knownEditor, selectedPrint, handleCanvasClick]);
 
     useEffect(() => {
         if (latentEditor) {
             loadImageToCanvas(latentEditor, selectedLatentPrint);
-            handleCanvasClick(latentEditor); // Call the function within the effect
+            handleCanvasClick(latentEditor); // Call the memoized function
         }
-    }, [latentEditor, selectedLatentPrint, handleCanvasClick]); // Add handleCanvasClick to dependencies
-
-    useEffect(() => {
-        if (knownEditor) {
-            loadImageToCanvas(knownEditor, selectedPrint);
-            handleCanvasClick(knownEditor);
-        }
-    }, [knownEditor, selectedPrint]);
-
-    useEffect(() => {
-        if (latentEditor) {
-            loadImageToCanvas(latentEditor, selectedLatentPrint);
-            handleCanvasClick(latentEditor);
-        }
-    }, [latentEditor, selectedLatentPrint]);
+    }, [latentEditor, selectedLatentPrint, handleCanvasClick]);
 
     return (
         <div>
