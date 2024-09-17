@@ -39,53 +39,93 @@ const ComparisonPage = () => {
 
     const loadImageToCanvas = (editor, imageUrl) => {
         if (editor && editor.canvas) {
-            editor.canvas.clear();
+            editor.canvas.clear(); // Clear the canvas first
             editor.canvas.setBackgroundImage(imageUrl, editor.canvas.renderAll.bind(editor.canvas), {
                 scaleX: editor.canvas.width / 500,
                 scaleY: editor.canvas.height / 500,
             });
+    
+            // Load saved dots from local storage
+            const savedDots = JSON.parse(localStorage.getItem(imageUrl)) || [];
+            
+            // Debugging to check loaded dots
+            console.log(`Loaded dots for ${imageUrl}:`, savedDots);
+    
+            // Re-draw each saved dot on the canvas
+            savedDots.forEach(dot => {
+                const restoredDot = new Circle({
+                    left: dot.x,
+                    top: dot.y,
+                    radius: 4,  // Keep dot size consistent
+                    fill: 'red',
+                    selectable: false,
+                    hasBorders: false,
+                    hasControls: false,
+                    evented: false,
+                    originX: 'center',
+                    originY: 'center',
+                });
+                editor.canvas.add(restoredDot);
+            });
+    
+            editor.canvas.renderAll(); // Re-render the canvas with the dots
         }
     };
 
-    const addDot = (editor, pointer) => {
+    const addDot = (editor, pointer, imageUrl) => {
         const dot = new Circle({
             left: pointer.x,
             top: pointer.y,
-            radius: 4,
+            radius: 4, // Smaller dot size
             fill: 'red',
             selectable: false,
             hasBorders: false,
             hasControls: false,
-            evented: false,  // This makes sure the dot won't interact with mouse events
+            evented: false,
             originX: 'center',
             originY: 'center',
         });
+    
         editor.canvas.add(dot);
+    
+        // Retrieve saved dots for this image
+        let savedDots = JSON.parse(localStorage.getItem(imageUrl)) || [];
+    
+        // Add the new dot's coordinates
+        savedDots.push({ x: pointer.x, y: pointer.y });
+    
+        // Save updated dots to local storage
+        localStorage.setItem(imageUrl, JSON.stringify(savedDots));
+    
+        // Debugging to check the saved dots
+        console.log(`Saved dots for ${imageUrl}:`, savedDots);
     };
     
-    // Memoize the handleCanvasClick function
-    const handleCanvasClick = useCallback((editor) => {
+    
+    const handleCanvasClick = useCallback((editor, imageUrl) => {
         if (editor && editor.canvas) {
             editor.canvas.on('mouse:down', (event) => {
                 const pointer = editor.canvas.getPointer(event.e);
-                addDot(editor, pointer);
+                addDot(editor, pointer, imageUrl); // Pass the image URL when adding a dot
             });
         }
-    }, []); // Empty dependency array so this function won't change
+    }, []); // Empty dependency array ensures this function is memoized and won't be redefined
+    
 
     useEffect(() => {
         if (knownEditor) {
             loadImageToCanvas(knownEditor, selectedPrint);
-            handleCanvasClick(knownEditor); // Call the memoized function
+            handleCanvasClick(knownEditor, selectedPrint); // Pass the image URL here
         }
-    }, [knownEditor, selectedPrint, handleCanvasClick]);
-
+    }, [knownEditor, selectedPrint, handleCanvasClick]); // No need for handleCanvasClick dependency, it's called inside
+    
     useEffect(() => {
         if (latentEditor) {
             loadImageToCanvas(latentEditor, selectedLatentPrint);
-            handleCanvasClick(latentEditor); // Call the memoized function
+            handleCanvasClick(latentEditor, selectedLatentPrint); // Pass the image URL here
         }
-    }, [latentEditor, selectedLatentPrint, handleCanvasClick]);
+    }, [latentEditor, selectedLatentPrint, handleCanvasClick]); // No need for handleCanvasClick dependency
+    
 
     return (
         <div>
