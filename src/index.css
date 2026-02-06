@@ -1,131 +1,582 @@
-/* General styling */
-html, body {
+/* =========================================================
+   Latent Lab Academy — Dark Sleek (Option 1: Glass + Blur)
+   FULL UPDATED CSS (includes: split cards, submission cards,
+   comparison cards, NO SCROLL comparison page, and FIXED
+   canvas sizing so it fits inside cards)
+   ========================================================= */
+
+/* =========================
+   Theme tokens
+   ========================= */
+:root{
+  --bg: #0B0F14;
+  --bg2:#0E1625;
+
+  --nav: rgba(17,24,39,.78);
+  --footer: rgba(17,24,39,.78);
+
+  --surface: rgba(22,30,46,.72);
+  --surface-2: rgba(28,37,64,.78);
+
+  --border: rgba(38,50,77,.72);
+  --border-strong: rgba(56,189,248,.45);
+
+  --text:#E5E7EB;
+  --muted:#9CA3AF;
+  --muted2:#6B7280;
+
+  --primary:#38BDF8;
+  --primary2:#22D3EE;
+
+  --success:#10B981;
+  --danger:#EF4444;
+
+  --shadow: 0 24px 60px rgba(0,0,0,.50);
+  --shadow2: 0 14px 34px rgba(0,0,0,.38);
+}
+
+/* =========================
+   Base layout
+   ========================= */
+html, body{
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: Arial, sans-serif;
-  background-color: #727272;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
   text-align: center;
+
+  background:
+    radial-gradient(900px 500px at 50% -10%, rgba(56,189,248,.18), transparent 60%),
+    radial-gradient(700px 450px at 85% 35%, rgba(124,58,237,.12), transparent 60%),
+    radial-gradient(700px 450px at 15% 70%, rgba(34,211,238,.10), transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
 }
 
-#root {
+#root{
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-header {
-  background-color: #333;
+/* =========================
+   Header
+   ========================= */
+header{
   color: white;
   padding: 0.1rem;
   text-align: center;
   flex-shrink: 0;
+  background: var(--nav);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(38,50,77,.65);
 }
 
-/* Header container */
-.header-container {
+.header-container{
   display: flex;
-  justify-content: center; /* Center the title */
+  justify-content: center;
   align-items: center;
-  position: relative; /* Allows positioning the home button */
-  background-color: #333;
+  position: relative;
+  background: var(--nav);
   color: white;
-  padding: 1.5rem;
+  padding: 1.15rem 1.5rem;
 }
 
-/* Title centered in the header */
-.header-title {
+.header-title{
   margin: 0;
   font-size: 2rem;
-  flex-grow: 1; /* This ensures the title takes up the middle space */
-  text-align: center; /* Ensures the title stays centered */
+  flex-grow: 1;
+  text-align: center;
+  letter-spacing: .4px;
+  text-shadow: 0 14px 40px rgba(0,0,0,.55);
 }
 
-/* Home link on the right */
-.header-nav {
+.header-nav{
   position: absolute;
-  right: 20px; /* Adjust to move the link to the right edge */
+  right: 20px;
   top: 50%;
-  transform: translateY(-50%); /* Vertically center the link */
+  transform: translateY(-50%);
 }
 
-.home-link {
-  color: white;
+.home-link{
+  color: var(--muted);
   text-decoration: none;
-  font-size: 1.1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+  font-size: 1.05rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
-.home-link:hover {
-  background-color: black;
+.home-link:hover{
+  color: var(--text);
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.10);
 }
 
-
-footer {
-  background-color: #333;
+/* =========================
+   Footer (fixed)
+   ========================= */
+footer{
+  background: var(--footer);
   color: white;
   text-align: center;
   flex-shrink: 0;
   position: fixed;
   bottom: 0;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.55rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(38,50,77,.65);
 }
 
-main {
+/* =========================
+   Main
+   ========================= */
+main{
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   box-sizing: border-box;
   overflow: hidden;
+
+  /* prevents fixed footer overlap */
+  padding-bottom: 3.25rem;
 }
 
-/* Landing page specific styling */
-.landing-page-container {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  height: calc(100vh - 300px); /* Full viewport height minus header and footer */
-  text-align: center; /* Center text within the box */
-  padding: 0 2rem; /* Add some padding for small screens */
-}
-
-.landing-page-content {
-  max-width: 800px; /* Limit the width to keep the content neat */
-  margin: 0 auto;
-  line-height: 1.6; /* Increase line height for better readability */
-  font-size: 1.1rem; /* Adjust font size for readability */
-  color: #fff;
-}
-
-/* Button styling for landing page */
-.mock-case-button {
-  background-color: #007bff;
-  color: white;
+/* =========================
+   Buttons (shared)
+   ========================= */
+.mock-case-button{
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  color: #020617;
   border: none;
   padding: 1rem 2rem;
-  font-size: 1.2rem;
-  border-radius: 5px;
+  font-size: 1.15rem;
+  border-radius: 12px;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
-  transition: background-color 0.3s ease;
-  margin-top: 1.5rem; /* Add some space above the button */
+  font-weight: 700;
+  letter-spacing: .2px;
+  box-shadow: 0 14px 34px rgba(56,189,248,.26);
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease, opacity .15s ease;
+  opacity: .96;
 }
 
-.mock-case-button:hover {
-  background-color: #0056b3;
+.mock-case-button:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 18px 40px rgba(56,189,248,.32);
+  opacity: 1;
 }
 
-.mock-case-button:focus {
+.mock-case-button:focus{
   outline: none;
+  box-shadow: 0 0 0 3px rgba(56,189,248,.18), 0 18px 40px rgba(56,189,248,.32);
 }
 
-.canvas-container {
+button[type="submit"],
+.submit-button{
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  border: none;
+  color: #020617;
+  padding: 0.85rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  margin: 0 auto;
+  display: inline-block;
+  width: 220px;
+  max-width: 100%;
+  box-shadow: 0 14px 34px rgba(56,189,248,.26);
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease, opacity .15s ease;
+  opacity: .96;
+}
+
+button[type="submit"]:hover,
+.submit-button:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 18px 40px rgba(56,189,248,.32);
+  opacity: 1;
+}
+
+button[type="submit"]:focus,
+.submit-button:focus{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(56,189,248,.18), 0 18px 40px rgba(56,189,248,.32);
+}
+
+/* =========================
+   Selects & inputs
+   ========================= */
+.select-container{
+  margin: 0.5rem 0;
+}
+
+select{
+  padding: 0.55rem 0.65rem;
+  font-size: 1rem;
+  border: 1px solid rgba(38,50,77,.85);
+  border-radius: 12px;
+  background: rgba(15,23,42,.92);
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+select:focus{
+  outline: none;
+  border-color: rgba(56,189,248,.85);
+  box-shadow: 0 0 0 3px rgba(56,189,248,.18);
+}
+
+select:hover{
+  border-color: rgba(56,189,248,.55);
+}
+
+/* =========================
+   Landing page
+   ========================= */
+.landing-page-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 300px);
+  text-align: center;
+  padding: 0 2rem;
+}
+
+.landing-page-content{
+  max-width: 900px;
+  margin: 0 auto;
+  line-height: 1.65;
+  font-size: 1.08rem;
+  color: var(--text);
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 2.25rem 2.5rem;
+  box-shadow: var(--shadow);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.landing-page-paragraph{
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  line-height: 1.65;
+  padding: 0.25rem 0;
+  color: var(--text);
+  font-size: 1.08rem;
+}
+
+/* =========================
+   Mock Cases Page (split cards)
+   ========================= */
+.split-container{
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+  margin-top: 75px;
+  gap: 2rem;
+  align-items: stretch;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.split-card{
+  flex: 1;
+  text-align: left;
+  padding: 2rem 2.25rem;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow2);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.split-card:hover{
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+  box-shadow: 0 18px 44px rgba(0,0,0,.45);
+}
+
+.split-card-title{
+  margin: 0 0 1rem 0;
+  letter-spacing: .35px;
+  color: var(--text);
+}
+
+.split-card-list{
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--text);
+}
+
+.split-right-card{
+  text-align: center;
+}
+
+.mock-cases-list{
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.mock-case-item{
+  margin: 0.6rem 0;
+}
+
+/* Wider-than-content buttons, not full width */
+.split-right-card .mock-case-button{
+  width: clamp(14rem, 65%, 16rem);
+  margin: 0 auto;
+  padding: 0.9rem 1rem;
+  font-size: 1.05rem;
+}
+
+/* =========================
+   Submission Page
+   ========================= */
+.submission-page{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.submission-form{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  justify-items: center;
+  margin-bottom: 2rem;
+}
+
+.form-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow2);
+  width: 100%;
+  max-width: 320px;
+  height: 210px;
+  color: var(--text);
+  padding: 20px;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.form-card:hover{
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+  box-shadow: 0 18px 44px rgba(0,0,0,.45);
+}
+
+.form-card h3{
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  letter-spacing: .55px;
+}
+
+.form-card div{
+  margin-bottom: 0.6rem;
+}
+
+.form-card label{
+  display: inline-block;
+  width: 150px;
+  text-align: center;
+  margin-right: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.form-card input[type="text"],
+.form-card input[type="email"],
+.form-card select{
+  width: calc(100% - 100px);
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(38,50,77,.88);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: rgba(15,23,42,.92);
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.form-card input[type="text"]::placeholder,
+.form-card input[type="email"]::placeholder{
+  color: rgba(156,163,175,.7);
+}
+
+.form-card input[type="text"]:focus,
+.form-card input[type="email"]:focus,
+.form-card select:focus{
+  outline: none;
+  border-color: rgba(56,189,248,.85);
+  box-shadow: 0 0 0 3px rgba(56,189,248,.18);
+}
+
+.submit-container{
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+/* =========================
+   Comparison Page (cards + fixed canvas sizing)
+   NOTE: Use the JSX classes: comparison-grid, comparison-card,
+   image-frame, comparison-action-bar (sticky)
+   ========================= */
+.comparison-header{
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.comparison-title{
+  margin: 0;
+  color: var(--text);
+  letter-spacing: .35px;
+  text-shadow: 0 14px 40px rgba(0,0,0,.35);
+}
+
+.comparison-subtitle{
+  margin: .45rem 0 0 0;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+/* two-column layout */
+.comparison-grid{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 0 2rem;
+  align-items: start;
+}
+
+/* glass cards */
+.comparison-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow2);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.comparison-card:hover{
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+  box-shadow: 0 18px 44px rgba(0,0,0,.45);
+}
+
+.comparison-card-top{
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  margin-bottom: .6rem;
+}
+
+.comparison-card-title{
+  margin: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  letter-spacing: .45px;
+  color: var(--text);
+}
+
+/* controls grouped */
+.comparison-controls{
+  display: flex;
+  justify-content: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.comparison-controls select{
+  min-width: 8.5rem;
+}
+
+/* frame controls the size */
+.comparison-card .image-frame{
+  width: 100%;
+  height: min(460px, calc(100vh - 320px)); /* viewport-aware */
+  background: rgba(0,0,0,.25);
+  border-radius: 14px;
+  padding: .65rem;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* IMPORTANT: override old fixed 500x500 styles inside the card */
+.comparison-card .canvas{
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  display: block;
+  max-width: 100%;
+  border: 0 !important;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(0,0,0,.28);
+}
+
+/* sticky bottom bar for the action button (not a card) */
+.comparison-action-bar{
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0.65rem 0 0.95rem;
+  margin-top: 0.35rem;
+
+  background: linear-gradient(
+    to top,
+    rgba(11,15,20,.86),
+    rgba(11,15,20,.35),
+    transparent
+  );
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* =========================
+   Baseline canvas for OTHER pages only
+   (prevents it from breaking comparison cards)
+   ========================= */
+.canvas-container{
   display: flex;
   justify-content: space-around;
   width: 100%;
@@ -133,241 +584,32 @@ main {
   flex-grow: 1;
 }
 
-.canvas {
-  border: 1px solid #000000;
+.canvas-container .canvas{
+  border: 1px solid rgba(255,255,255,.14);
   margin: 1rem;
   height: 500px;
   width: 500px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.18);
+  box-shadow: var(--shadow2);
 }
 
-.select-container {
-  margin: 0.5rem 0;
-}
-
-select {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-right: 1rem;
-  background-color: #f8f8f8;
-  transition: border-color 0.3s ease;
-}
-
-select:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-select:hover {
-  border-color: #0056b3;
-}
-
-/* Button styling for mock cases */
-.mock-cases-list {
-  list-style: none;
-  padding: 0;
-  max-width: 600px;
-  text-align: center;
-}
-
-.mock-case-item {
-  margin: 0.5rem 0;
-}
-
-.mock-case-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.3s ease;
-}
-
-.mock-case-button:hover {
-  background-color: #0056b3;
-}
-
-.mock-case-button:focus {
-  outline: none;
-}
-
-h2 {
+/* =========================
+   Misc / utility
+   ========================= */
+h2{
   margin-bottom: 0px;
+  color: var(--text);
+  letter-spacing: .35px;
 }
 
-.submission-title {
+.submission-title{
   margin-bottom: 30px;
+  color: var(--text);
 }
 
-/* Submission page layout with grid */
-.submission-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-}
-
-.submission-form {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns */
-  gap: 2rem; /* Increase space between cards */
-  justify-items: center; /* Center cards within their grid cells */
-  margin-bottom: 2rem; /* Space at the bottom for the submit button */
-}
-
-.form-card {
-  background-color: #444;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 300px; /* Width of each card */
-  height: 200px; /* Fixed height for consistency */
-  color: #fff;
-}
-
-.form-card h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-}
-
-.form-card div {
-  margin-bottom: 0.5rem;
-}
-
-.form-card label {
-  display: inline-block;
-  width: 150px;
-  text-align: center;
-  margin-right: 10px;
-  font-size: 0.9rem;
-}
-
-.form-card input[type="text"],
-.form-card input[type="email"],
-.form-card select {
-  width: calc(100% - 100px);
-  padding: 0.3rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 0.9rem;
-}
-
-button[type="submit"] {
-  background-color: #007bff;
-  border: none;
-  color: white;
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-  margin: 0 auto;
-  display: block;
-  width: 200px; 
-  max-width: 100%; 
-}
-
-/* Centered paragraph styling */
-.landing-page-paragraph {
-  max-width: 800px; /* Limit the width to keep the text neat */
-  margin: 0 auto; /* Center the paragraph by setting auto margins */
-  text-align: center; /* Center the text within the paragraph */
-  line-height: 1.6; /* Increase line height for better readability */
-  padding: 1rem; /* Add some padding for spacing */
-  color: #fff; /* Ensure text color is visible (adjust as needed) */
-  font-size: 1.1rem; /* Adjust font size for readability */
-}
-
-/* Split screen container */
-.split-container {
-  display: flex;
-  justify-content: space-between;
-  padding: 2rem;
-  margin-top: 75px;
-}
-
-/* Left side */
-.split-left {
-  flex: 1;
-  padding-right: 2rem;
-  text-align: left;
-  color: #fff;
-}
-
-/* Right side */
-.split-right {
-  flex: 1;
-  padding-left: 2rem;
-  text-align: center;
-}
-
-/* Bullet points */
-.split-left ul {
-  list-style-type: disc;
-  margin: 1rem 0 0 1.5rem;
-  padding: 0;
-}
-
-/* Mock cases title */
-.split-right h2 {
-  margin-bottom: 1rem;
-}
-
-/* Button styling (reuse existing styles if needed) */
-.split-right .mock-case-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.3s ease;
-  margin-bottom: 1rem;
-}
-
-.split-right .mock-case-button:hover {
-  background-color: #0056b3;
-}
-
-.split-right .mock-case-button:focus {
-  outline: none;
-}
-
-.black-text {
-  color: black;
-}
-
-/* Center the submit button below the grid */
-.submit-container {
-  text-align: center;
-  margin-top: 1.5rem;
-}
-
-.submit-button {
-  background-color: #007bff;
-  border: none;
-  color: white;
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-  display: inline-block;
-  width: 200px; /* Set fixed width for consistency */
-}
-
-.submit-button:hover {
-  background-color: #0056b3;
+.black-text{
+  color: var(--text);
 }
 
 .list-space{
@@ -375,30 +617,62 @@ button[type="submit"] {
 }
 
 .go-to-submission{
-  margin-top: -15px;
+  margin-top: 0; /* legacy - replaced by comparison-action-bar */
 }
 
-/* Popup message styling */
-.popup {
+/* Popup */
+.popup{
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Center the popup */
-  background-color: #28a745;
-  color: white;
+  transform: translate(-50%, -50%);
+  background: rgba(16,185,129,.92);
+  color: #052014;
   padding: 1.5rem 2rem;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.14);
   z-index: 1000;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   animation: fadeInOut 5s ease-in-out;
 }
 
-/* Optional animation for fading effect */
-@keyframes fadeInOut {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
+@keyframes fadeInOut{
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.98); }
+  10% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  90% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(.98); }
+}
+
+/* =========================
+   Responsive
+   ========================= */
+@media (max-width: 980px){
+  .submission-form{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .comparison-grid{
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+    gap: 1rem;
+  }
+
+  .comparison-card .image-frame{
+    height: min(440px, calc(100vh - 340px));
+  }
+}
+
+@media (max-width: 640px){
+  .submission-form{
+    grid-template-columns: 1fr;
+  }
+
+  .split-container{
+    flex-direction: column;
+    margin-top: 40px;
+  }
 }

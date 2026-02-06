@@ -131,41 +131,68 @@ const ComparisonPage = () => {
         <div>
             <Header />
             <main>
-                <h2>Comparison for Case {caseId}</h2>
-                <div className="canvas-container">
-                    <div>
-                        <h3>Known Prints</h3>
-                        <div className="select-container">
-                            <select onChange={handlePersonChange}>
-                                {people.map(person => (
-                                    <option key={person.id} value={person.id}>{person.name}</option>
-                                ))}
-                            </select>
-                            <select onChange={handlePrintChange} value={selectedPrint}>
-                                {selectedPerson.prints.map((print, index) => (
-                                    <option key={print} value={print}>{`Finger ${index + 1}`}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <FabricJSCanvas className="canvas" onReady={onReadyKnown} />
-                    </div>
-                    <div>
-                        <h3>Latent Prints</h3>
-                        <div className="select-container">
-                            <select onChange={handleLatentPrintChange} value={selectedLatentPrint}>
-                                {latentPrints.map((print, index) => (
-                                    <option key={print} value={print}>{`Latent ${index + 1}`}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <FabricJSCanvas className="canvas" onReady={onReadyLatent} />
-                    </div>
-                </div>
-                <div className="go-to-submission">
-                    <button className="mock-case-button" onClick={() => navigate(`/submission/${caseId}`)}>Go to Submission</button>
+                <div className="comparison-header">
+                    <h2 className="comparison-title">Comparison for Case {caseId}</h2>
+                    <p className="comparison-subtitle">Click on an image to place dots on minutiae/characteristics.</p>
                 </div>
 
-            </main>
+                <div className="comparison-grid">
+                    {/* Known Card */}
+                    <section className="comparison-card">
+                    <div className="comparison-card-top">
+                        <h3 className="comparison-card-title">Known Prints</h3>
+
+                        <div className="comparison-controls">
+                        <select onChange={handlePersonChange} value={selectedPerson.id}>
+                            {people.map(person => (
+                            <option key={person.id} value={person.id}>{person.name}</option>
+                            ))}
+                        </select>
+
+                        <select onChange={handlePrintChange} value={selectedPrint}>
+                            {selectedPerson.prints.map((print, index) => (
+                            <option key={print} value={print}>{`Finger ${index + 1}`}</option>
+                            ))}
+                        </select>
+                        </div>
+                    </div>
+
+                    <div className="image-frame">
+                        <FabricJSCanvas className="canvas" onReady={onReadyKnown} />
+                    </div>
+                    </section>
+
+                    {/* Latent Card */}
+                    <section className="comparison-card">
+                    <div className="comparison-card-top">
+                        <h3 className="comparison-card-title">Latent Prints</h3>
+
+                        <div className="comparison-controls">
+                        <select onChange={handleLatentPrintChange} value={selectedLatentPrint}>
+                            {latentPrints.map((print, index) => (
+                            <option key={print} value={print}>{`Latent ${index + 1}`}</option>
+                            ))}
+                        </select>
+                        </div>
+                    </div>
+
+                    <div className="image-frame">
+                        <FabricJSCanvas className="canvas" onReady={onReadyLatent} />
+                    </div>
+                    </section>
+                </div>
+
+                     <div className="comparison-action-bar">
+                        <button
+                            className="submit-button"
+                            onClick={() => navigate(`/submission/${caseId}`)}
+                        >
+                            Go to Submissions
+                        </button>
+                    </div>
+           
+                </main>
+
             <Footer />
         </div>
     );
