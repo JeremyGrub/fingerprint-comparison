@@ -166,6 +166,7 @@ main{
   box-shadow: 0 14px 34px rgba(56,189,248,.26);
   transition: transform .15s ease, filter .15s ease, box-shadow .15s ease, opacity .15s ease;
   opacity: .96;
+  margin-top: 1rem;
 }
 
 .mock-case-button:hover{
@@ -329,8 +330,33 @@ select:hover{
   color: var(--text);
 }
 
+/* Right card should center its children */
 .split-right-card{
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center the list block */
+}
+
+/* Make the UL fill the card and remove browser defaults */
+.split-right-card .mock-cases-list{
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;            /* kill default UL padding */
+  margin: 1rem 0 0 0;    /* kill default UL margin */
+  list-style: none;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;   /* center items horizontally */
+}
+
+/* Make each LI a full row and center its content */
+.split-right-card .mock-case-item{
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .mock-cases-list{
@@ -559,7 +585,6 @@ select:hover{
   display: flex;
   justify-content: center;
   padding: 0.65rem 0 0.95rem;
-  margin-top: 0.35rem;
 
   background: linear-gradient(
     to top,
@@ -618,6 +643,30 @@ h2{
 
 .go-to-submission{
   margin-top: 0; /* legacy - replaced by comparison-action-bar */
+}
+
+/* Force perfect centering inside comparison cards */
+.comparison-card{
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers ALL children horizontally */
+}
+
+/* Image frame centered and constrained */
+.comparison-card .image-frame{
+  width: 100%;
+  max-width: 520px;     /* 👈 this is key */
+  margin: 0 auto;       /* hard center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Canvas fills the frame evenly */
+.comparison-card .canvas{
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
 }
 
 /* Popup */
