@@ -725,3 +725,160 @@ h2{
     margin-top: 40px;
   }
 }
+
+/* =========================================================
+   Comparison Page — Tools Sidebar (SCOPED, safe)
+   Add this BELOW your existing .comparison-grid / .comparison-card rules
+   ========================================================= */
+
+.comparison-layout{
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 320px; /* left content + skinny tools */
+  gap: 1.5rem;
+  padding: 0 2rem;
+  align-items: start;
+}
+
+/* IMPORTANT: Remove the padding that .comparison-grid adds (only when inside comparison-layout) */
+.comparison-layout .comparison-grid{
+  padding: 0;
+  margin: 0;
+  max-width: 1200px;
+}
+
+/* Tools card */
+.tools-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow2);
+  padding: 1.25rem;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  text-align: left;
+
+  /* nice: keeps it visible while you work */
+  position: sticky;
+  top: 110px; /* below your header */
+}
+
+/* Tools typography */
+.tools-title{
+  margin: 0 0 1rem 0;
+  letter-spacing: .4px;
+  color: var(--text);
+}
+
+.tools-section{
+  margin-bottom: 1rem;
+}
+
+.tools-label{
+  display: block;
+  color: var(--muted);
+  font-size: .85rem;
+  margin-bottom: .4rem;
+}
+
+/* Active canvas badge (optional if you add it) */
+.tools-meta{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .6rem .75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(38,50,77,.7);
+  background: rgba(15,23,42,.55);
+}
+
+.tools-meta-label{
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.tools-meta-value{
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* Color input */
+.tools-color{
+  width: 100%;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(38,50,77,.88);
+  background: rgba(15,23,42,.92);
+  padding: .25rem;
+}
+
+/* Buttons */
+.tools-row{
+  display: flex;
+  gap: .5rem;
+}
+
+.tools-btn{
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1px solid rgba(38,50,77,.88);
+  background: rgba(15,23,42,.70);
+  color: var(--text);
+  font-weight: 800;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease;
+}
+
+.tools-btn:hover{
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+  background: rgba(28,37,64,.70);
+}
+
+.tools-danger{
+  border-color: rgba(239,68,68,.55);
+}
+
+.tools-danger:hover{
+  border-color: rgba(239,68,68,.85);
+}
+
+.tools-hint{
+  color: var(--muted);
+  font-size: .85rem;
+  line-height: 1.45;
+}
+
+/* Responsive: Tools sidebar drops under the cards */
+@media (max-width: 1100px){
+  .comparison-layout{
+    grid-template-columns: 1fr;
+  }
+
+  .tools-card{
+    position: static;
+    top: auto;
+  }
+}
+
+.tools-card .submit-button{
+  margin-top: 0.5rem;
+}
+
+.tools-card .tools-section:last-child{
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+/* Center ONLY the submission button inside the tools card */
+.tools-card .tools-section:last-child{
+  display: flex;
+  justify-content: center;
+}
+
+
+
