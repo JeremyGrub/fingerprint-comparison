@@ -90,50 +90,50 @@ const ComparisonPage = () => {
     editor.canvas.renderAll();
   };
 
-  const addDot = (editor, pointer, imageUrl, history) => {
+  const addDot = useCallback((editor, pointer, imageUrl, history) => {
     if (!editor?.canvas) return;
 
     const dot = new Circle({
-      left: pointer.x,
-      top: pointer.y,
-      radius: DOT_RADIUS,
-      fill: dotColor,
-      selectable: false,
-      hasBorders: false,
-      hasControls: false,
-      evented: false,
-      originX: 'center',
-      originY: 'center',
+        left: pointer.x,
+        top: pointer.y,
+        radius: DOT_RADIUS,
+        fill: dotColor,
+        selectable: false,
+        hasBorders: false,
+        hasControls: false,
+        evented: false,
+        originX: 'center',
+        originY: 'center',
     });
 
     editor.canvas.add(dot);
     editor.canvas.renderAll();
 
-    // History: adding a dot is an undoable action
     history.undo.push({ type: 'add', object: dot, imageUrl });
     history.redo = [];
 
-    // Persist (include color)
     const savedDots = JSON.parse(localStorage.getItem(imageUrl)) || [];
     savedDots.push({ x: pointer.x, y: pointer.y, color: dotColor });
     localStorage.setItem(imageUrl, JSON.stringify(savedDots));
-  };
+}, [dotColor]);
+
 
   // Attach click handler (prevents stacking multiple handlers)
   const handleCanvasClick = useCallback(
     (editor, imageUrl, history, sideName) => {
-      if (!editor?.canvas) return;
+        if (!editor?.canvas) return;
 
-      editor.canvas.off('mouse:down');
+        editor.canvas.off('mouse:down');
 
-      editor.canvas.on('mouse:down', (event) => {
+        editor.canvas.on('mouse:down', (event) => {
         setActiveSide(sideName);
         const pointer = editor.canvas.getPointer(event.e);
         addDot(editor, pointer, imageUrl, history);
-      });
+        });
     },
-    [dotColor]
+    [addDot]
   );
+
 
   // Load known canvas when image changes
   useEffect(() => {
