@@ -35,6 +35,97 @@ const ComparisonPage = () => {
   const knownHistory = useRef({ undo: [], redo: [] });
   const latentHistory = useRef({ undo: [], redo: [] });
 
+  // =========================
+  // Identify / Exclude storage
+  // =========================
+  const STORAGE_KEY = `lla_case_${caseId}_decisions`;
+
+  const loadCaseData = () => {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { decisions: {}, identifiedByLatent: {} };
+    } catch {
+      return { decisions: {}, identifiedByLatent: {} };
+    }
+  };
+
+  const saveCaseData = (data) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  };
+
+  const [caseData, setCaseData] = useState(() => loadCaseData());
+
+  useEffect(() => {
+    saveCaseData(caseData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseData]);
+
+  const getLatentIndexFromUrl = (url) => {
+    // /images/latent/latent-3.jpg -> 3
+    const match = url.match(/latent-(\d+)\.jpg$/);
+    return match ? Number(match[1]) : 1;
+  };
+
+  const getFingerIndexFromUrl = (url) => {
+    // /images/person1/print1-7.jpg -> 7
+    const match = url.match(/-(\d+)\.jpg$/);
+    return match ? Number(match[1]) : 1;
+  };
+
+  const buildComboKey = ({ caseId: cId, latentIndex, personId, fingerIndex }) =>
+    `case:${cId}|latent:${latentIndex}|person:${personId}|finger:${fingerIndex}`;
+
+  const latentIndex = getLatentIndexFromUrl(selectedLatentPrint);
+  const fingerIndex = getFingerIndexFromUrl(selectedPrint);
+  const personId = selectedPerson.id;
+
+  const comboKey = buildComboKey({ caseId, latentIndex, personId, fingerIndex });
+  const comboStatus = caseData.decisions?.[comboKey] || null; // 'identify' | 'exclude' | null
+
+  const setIdentify = () => {
+    // Identify this latent as the currently selected person/finger
+    setCaseData((prev) => {
+      const next = structuredClone(prev);
+
+      // set this combo to identify
+      next.decisions[comboKey] = 'identify';
+
+      // set the "final answer" for this latent (used later to prefill submission)
+      next.identifiedByLatent[`latent:${latentIndex}`] = { personId, fingerIndex };
+
+      // optional: keep only ONE identify per latent by clearing other identify entries for same latent
+      Object.keys(next.decisions).forEach((k) => {
+        const sameLatent = k.includes(`case:${caseId}|latent:${latentIndex}|`);
+        if (sameLatent && k !== comboKey && next.decisions[k] === 'identify') {
+          delete next.decisions[k];
+        }
+      });
+
+      return next;
+    });
+  };
+
+  const setExclude = () => {
+    setCaseData((prev) => {
+      const next = structuredClone(prev);
+      next.decisions[comboKey] = 'exclude';
+      return next;
+    });
+  };
+
+  const clearDecision = () => {
+    setCaseData((prev) => {
+      const next = structuredClone(prev);
+      delete next.decisions[comboKey];
+
+      // optional: if you clear a decision that matches the identifiedByLatent for this latent, do NOT erase the final answer automatically
+      // (students might want to keep their final pick even if they’re clearing per-combo marks)
+      return next;
+    });
+  };
+
+  // =========================
+  // Existing handlers
+  // =========================
   const handlePersonChange = (event) => {
     const person = people.find((p) => p.id === Number(event.target.value));
     setSelectedPerson(person);
@@ -90,10 +181,11 @@ const ComparisonPage = () => {
     editor.canvas.renderAll();
   };
 
-  const addDot = useCallback((editor, pointer, imageUrl, history) => {
-    if (!editor?.canvas) return;
+  const addDot = useCallback(
+    (editor, pointer, imageUrl, history) => {
+      if (!editor?.canvas) return;
 
-    const dot = new Circle({
+      const dot = new Circle({
         left: pointer.x,
         top: pointer.y,
         radius: DOT_RADIUS,
@@ -104,36 +196,36 @@ const ComparisonPage = () => {
         evented: false,
         originX: 'center',
         originY: 'center',
-    });
+      });
 
-    editor.canvas.add(dot);
-    editor.canvas.renderAll();
+      editor.canvas.add(dot);
+      editor.canvas.renderAll();
 
-    history.undo.push({ type: 'add', object: dot, imageUrl });
-    history.redo = [];
+      history.undo.push({ type: 'add', object: dot, imageUrl });
+      history.redo = [];
 
-    const savedDots = JSON.parse(localStorage.getItem(imageUrl)) || [];
-    savedDots.push({ x: pointer.x, y: pointer.y, color: dotColor });
-    localStorage.setItem(imageUrl, JSON.stringify(savedDots));
-}, [dotColor]);
-
+      const savedDots = JSON.parse(localStorage.getItem(imageUrl)) || [];
+      savedDots.push({ x: pointer.x, y: pointer.y, color: dotColor });
+      localStorage.setItem(imageUrl, JSON.stringify(savedDots));
+    },
+    [dotColor]
+  );
 
   // Attach click handler (prevents stacking multiple handlers)
   const handleCanvasClick = useCallback(
     (editor, imageUrl, history, sideName) => {
-        if (!editor?.canvas) return;
+      if (!editor?.canvas) return;
 
-        editor.canvas.off('mouse:down');
+      editor.canvas.off('mouse:down');
 
-        editor.canvas.on('mouse:down', (event) => {
+      editor.canvas.on('mouse:down', (event) => {
         setActiveSide(sideName);
         const pointer = editor.canvas.getPointer(event.e);
         addDot(editor, pointer, imageUrl, history);
-        });
+      });
     },
     [addDot]
   );
-
 
   // Load known canvas when image changes
   useEffect(() => {
@@ -236,9 +328,7 @@ const ComparisonPage = () => {
           <p className="comparison-subtitle">Click on an image to place dots on minutiae/characteristics.</p>
         </div>
 
-        {/* NEW: wrapper for (2 panels) + (tools sidebar) */}
         <div className="comparison-layout">
-          {/* Left: two main cards */}
           <div className="comparison-grid">
             {/* Known Prints */}
             <section className="comparison-card">
@@ -291,7 +381,7 @@ const ComparisonPage = () => {
             </section>
           </div>
 
-          {/* Right: Tools Sidebar */}
+          {/* Tools Sidebar */}
           <aside className="tools-card">
             <h3 className="tools-title">Tools</h3>
 
@@ -327,21 +417,46 @@ const ComparisonPage = () => {
               </button>
             </div>
 
-            <div className="tools-section tools-hint">
-              Tip: click on the print to place dots. Tools apply to the canvas you clicked last.
-            </div>
+            {/* Decision tools */}
             <div className="tools-section">
+              <label className="tools-label">Decision</label>
+
+              <div className="tools-section tools-row">
                 <button
-                    className="submit-button"
-                    onClick={() => navigate(`/submission/${caseId}`)}
+                  type="button"
+                  className={`tools-btn ${comboStatus === 'identify' ? 'tools-identify-active' : ''}`}
+                  onClick={setIdentify}
                 >
-                    Go to Submissions
+                  Identify
                 </button>
+
+                <button
+                  type="button"
+                  className={`tools-btn ${comboStatus === 'exclude' ? 'tools-exclude-active' : ''}`}
+                  onClick={setExclude}
+                >
+                  Exclude
+                </button>
+              </div>
+
+              <button type="button" className="tools-btn tools-subtle" onClick={clearDecision}>
+                Clear Decision
+              </button>
             </div>
 
+            {/* <div className="tools-section tools-hint">
+              Tip: click on the print to place dots. Tools apply to the canvas you clicked last.
+              <br />
+              Decision is saved per (Latent + Person + Finger).
+            </div> */}
+
+            <div className="tools-section">
+              <button className="submit-button" onClick={() => navigate(`/submission/${caseId}`)}>
+                Go to Submissions
+              </button>
+            </div>
           </aside>
         </div>
-
       </main>
       <Footer />
     </div>

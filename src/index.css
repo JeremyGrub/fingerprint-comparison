@@ -343,13 +343,14 @@ select:hover{
   width: 100%;
   max-width: 100%;
   padding: 0;            /* kill default UL padding */
-  margin: 1rem 0 0 0;    /* kill default UL margin */
+  margin: 0.5rem 0 0 0;    /* kill default UL margin */
   list-style: none;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   align-items: center;   /* center items horizontally */
+  gap: 2.5rem;
 }
 
 /* Make each LI a full row and center its content */
@@ -357,6 +358,7 @@ select:hover{
   width: 100%;
   display: flex;
   justify-content: center;
+  margin: 0;
 }
 
 .mock-cases-list{
@@ -879,6 +881,23 @@ h2{
   display: flex;
   justify-content: center;
 }
+
+.tools-identify-active{
+  background: rgba(16,185,129,.25);
+  border-color: rgba(16,185,129,.8);
+}
+
+.tools-exclude-active{
+  background: rgba(239,68,68,.22);
+  border-color: rgba(239,68,68,.8);
+}
+
+.tools-subtle{
+  margin-top: .6rem;
+  background: rgba(15,23,42,.45);
+  opacity: .9;
+}
+
 
 
 
