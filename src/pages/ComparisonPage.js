@@ -107,21 +107,52 @@ const ComparisonPage = () => {
   const setExclude = () => {
     setCaseData((prev) => {
       const next = structuredClone(prev);
+
+      // mark this combo as excluded
       next.decisions[comboKey] = 'exclude';
+
+      // if this combo WAS the identified answer for this latent, remove it
+      const latentKey = `latent:${latentIndex}`;
+      const currentIdent = next.identifiedByLatent?.[latentKey];
+
+      if (
+        currentIdent &&
+        Number(currentIdent.personId) === Number(personId) &&
+        Number(currentIdent.fingerIndex) === Number(fingerIndex)
+      ) {
+        delete next.identifiedByLatent[latentKey];
+      }
+
       return next;
     });
   };
+
 
   const clearDecision = () => {
     setCaseData((prev) => {
       const next = structuredClone(prev);
+
+      const latentKey = `latent:${latentIndex}`;
+      const wasIdentify = next.decisions?.[comboKey] === 'identify';
+
+      // remove this combo decision
       delete next.decisions[comboKey];
 
-      // optional: if you clear a decision that matches the identifiedByLatent for this latent, do NOT erase the final answer automatically
-      // (students might want to keep their final pick even if they’re clearing per-combo marks)
+      // if we just cleared the identified combo, also remove the final answer
+      const currentIdent = next.identifiedByLatent?.[latentKey];
+      if (
+        wasIdentify &&
+        currentIdent &&
+        Number(currentIdent.personId) === Number(personId) &&
+        Number(currentIdent.fingerIndex) === Number(fingerIndex)
+      ) {
+        delete next.identifiedByLatent[latentKey];
+      }
+
       return next;
     });
   };
+
 
   // =========================
   // Existing handlers
