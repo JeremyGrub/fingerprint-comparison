@@ -944,6 +944,53 @@ h2{
   opacity: 0.6;
 }
 
+.finger-status-row{
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap; /* in case screen is smaller */
+}
+
+.finger-status-pill{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.finger-status-pill:hover{
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,.25);
+}
+
+/* 🟢 Identified */
+.finger-identify{
+  background: rgba(16,185,129,.25);
+  border-color: rgba(16,185,129,.85);
+  color: #10B981;
+}
+
+/* 🔴 Excluded */
+.finger-exclude{
+  background: rgba(239,68,68,.22);
+  border-color: rgba(239,68,68,.85);
+  color: #EF4444;
+}
+
+/* ⚪ Neutral */
+.finger-none{
+  opacity: 0.6;
+}
+
 
 
 

@@ -370,6 +370,18 @@ const ComparisonPage = () => {
     return 'none';
   };
 
+  const getFingerStatus = (fingerNum) => {
+    const key = buildComboKey({
+      caseId,
+      latentIndex,
+      personId: selectedPerson.id,
+      fingerIndex: fingerNum,
+  });
+
+  return caseData.decisions?.[key] || 'none'; // 'identify' | 'exclude' | 'none'
+};
+
+
   // ======================================
 
   return (
@@ -409,6 +421,25 @@ const ComparisonPage = () => {
 
               <div className="image-frame">
                 <FabricJSCanvas className="canvas" onReady={onReadyKnown} />
+              </div>
+
+              {/* Finger Status Row (for selected Latent + selected Person) */}
+              <div className="finger-status-row">
+                {selectedPerson.prints.map((printUrl, i) => {
+                  const fingerNum = i + 1;
+                  const status = getFingerStatus(fingerNum);
+
+                  return (
+                    <div
+                      key={printUrl}
+                      className={`finger-status-pill finger-${status}`}
+                      onClick={() => setSelectedPrint(printUrl)}
+                      title={`Finger ${fingerNum}`}
+                    >
+                      {fingerNum}
+                    </div>
+                  );
+                })}
               </div>
             </section>
 
