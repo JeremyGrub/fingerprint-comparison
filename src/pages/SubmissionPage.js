@@ -1,6 +1,6 @@
 // src/pages/SubmissionPage.js
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import emailjs from 'emailjs-com';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -96,6 +96,8 @@ const SubmissionPage = () => {
     sendEmail();
   };
 
+  const navigate = useNavigate();
+
   return (
     <div>
       <Header />
@@ -154,11 +156,24 @@ const SubmissionPage = () => {
           ))}
         </form>
 
-        <div className="submit-container">
-          <button type="submit" className="submit-button" onClick={handleSubmit}>
+        <div className="submission-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => navigate(`/comparison/${caseId}`)}
+          >
+            Back to Comparisons
+          </button>
+
+          <button
+            type="submit"
+            className="submit-button"
+            onClick={handleSubmit}
+          >
             Submit
           </button>
         </div>
+
 
         {popupVisible && <div className="popup">Results have been successfully sent!</div>}
       </main>
