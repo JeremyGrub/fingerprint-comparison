@@ -348,6 +348,28 @@ const ComparisonPage = () => {
 
     history.undo.push(action);
   };
+
+  const getLatentStatus = (latentNum) => {
+    const latentKey = `latent:${latentNum}`;
+
+    // 🟢 Identified
+    if (caseData.identifiedByLatent?.[latentKey]) {
+      return 'identified';
+    }
+
+    // 🟡 Has exclusions but no identify
+    const hasExclusions = Object.entries(caseData.decisions || {}).some(
+      ([key, value]) =>
+        key.includes(`case:${caseId}|latent:${latentNum}|`) &&
+        value === 'exclude'
+    );
+
+    if (hasExclusions) return 'in-progress';
+
+    // ⚪ Untouched
+    return 'none';
+  };
+
   // ======================================
 
   return (
@@ -409,6 +431,24 @@ const ComparisonPage = () => {
               <div className="image-frame">
                 <FabricJSCanvas className="canvas" onReady={onReadyLatent} />
               </div>
+
+              {/* Latent Status Row */}
+              <div className="latent-status-row">
+                {latentPrints.map((_, i) => {
+                  const status = getLatentStatus(i + 1);
+
+                  return (
+                    <div
+                      key={i}
+                      className={`latent-status-pill latent-${status}`}
+                      onClick={() => setSelectedLatentPrint(latentPrints[i])}
+                    >
+                      {i + 1}
+                    </div>
+                  );
+                })}
+              </div>
+
             </section>
           </div>
 

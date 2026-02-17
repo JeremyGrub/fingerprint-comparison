@@ -898,6 +898,52 @@ h2{
   opacity: .9;
 }
 
+.latent-status-row{
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.latent-status-pill{
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.latent-status-pill:hover{
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,.25);
+}
+
+/* 🟢 Identified */
+.latent-identified{
+  background: rgba(16,185,129,.25);
+  border-color: rgba(16,185,129,.85);
+  color: #10B981;
+}
+
+/* 🟡 In Progress */
+.latent-in-progress{
+  background: rgba(245,158,11,.22);
+  border-color: rgba(245,158,11,.8);
+  color: #F59E0B;
+}
+
+/* ⚪ Neutral */
+.latent-none{
+  opacity: 0.6;
+}
+
 
 
 
