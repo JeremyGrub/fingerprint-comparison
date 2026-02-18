@@ -1089,4 +1089,13 @@ h2{
   opacity: .95;
 }
 
+.popup-danger{
+  background: rgba(239,68,68,.92);
+  color: #190707;
+}
+
+.popup-warn{
+  background: rgba(245,158,11,.92);
+  color: #1a1202;
+}
 

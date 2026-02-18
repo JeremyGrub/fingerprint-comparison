@@ -27,7 +27,12 @@ const SubmissionPage = () => {
       .map(() => ({ person: '', finger: '' })),
   });
 
+  // success popup (existing)
   const [popupVisible, setPopupVisible] = useState(false);
+
+  // NEW: validation popups
+  const [missingInfoPopup, setMissingInfoPopup] = useState(false);
+  const [missingDecisionsPopup, setMissingDecisionsPopup] = useState(false);
 
   // Prefill from ComparisonPage Identify decisions + auto Exclude All
   useEffect(() => {
@@ -45,7 +50,7 @@ const SubmissionPage = () => {
           const latentKey = `latent:${latentNum}`;
           const found = identifiedByLatent[latentKey];
 
-          // Count excluded combos for this latent
+          // Count excluded combos for this latent (for auto Exclude All)
           const excludedCount = Object.entries(decisions).reduce((count, [key, value]) => {
             const isThisLatent = key.includes(`case:${caseId}|latent:${latentNum}|`);
             if (isThisLatent && value === 'exclude') return count + 1;
@@ -104,6 +109,35 @@ const SubmissionPage = () => {
     return `Person ${latent.person} / ${latent.finger}`;
   };
 
+  const showTempPopup = (setter) => {
+    setter(true);
+    setTimeout(() => setter(false), 3000);
+  };
+
+  // ✅ Validation checks (no hand-holding, just "missing")
+  const validateBeforeSubmit = () => {
+    const nameOk = formData.name.trim().length > 0;
+    const emailOk = formData.email.trim().length > 0;
+
+    if (!nameOk || !emailOk) {
+      showTempPopup(setMissingInfoPopup);
+      return false;
+    }
+
+    const latentsOk = formData.latents.every((l) => {
+      if (!l.person) return false;
+      if (l.person === 'exclude_all') return true; // finger can be N/A
+      return Boolean(l.finger);
+    });
+
+    if (!latentsOk) {
+      showTempPopup(setMissingDecisionsPopup);
+      return false;
+    }
+
+    return true;
+  };
+
   const sendEmail = () => {
     const templateParams = {
       case_id: caseId,
@@ -132,6 +166,10 @@ const SubmissionPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // ✅ block send if missing anything
+    if (!validateBeforeSubmit()) return;
+
     sendEmail();
   };
 
@@ -146,11 +184,11 @@ const SubmissionPage = () => {
             <h3>Personal Information</h3>
             <div>
               <label>Name:</label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+              <input type="text" name="name" value={formData.name} onChange={handleChange} />
             </div>
             <div>
               <label>Professor&apos;s Email:</label>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} />
             </div>
           </div>
 
@@ -163,16 +201,9 @@ const SubmissionPage = () => {
 
                 <div>
                   <label>Person:</label>
-                  <select
-                    value={latent.person}
-                    onChange={(e) => handleInputChange(index, 'person', e.target.value)}
-                    required
-                  >
+                  <select value={latent.person} onChange={(e) => handleInputChange(index, 'person', e.target.value)}>
                     <option value="">Select Person</option>
-
-                    {/* Always available manual option */}
                     <option value="exclude_all">Exclude All</option>
-
                     {people.map((person) => (
                       <option key={person.id} value={person.id}>
                         {person.name}
@@ -186,11 +217,9 @@ const SubmissionPage = () => {
                   <select
                     value={latent.finger}
                     onChange={(e) => handleInputChange(index, 'finger', e.target.value)}
-                    required={!isExcludeAll}
                     disabled={isExcludeAll}
                   >
                     <option value="">{isExcludeAll ? 'N/A' : 'Select Finger'}</option>
-
                     {isExcludeAll ? (
                       <option value="N/A">N/A</option>
                     ) : (
@@ -212,12 +241,17 @@ const SubmissionPage = () => {
             Back to Comparisons
           </button>
 
-          <button type="submit" className="submit-button" onClick={handleSubmit}>
+          <button type="button" className="submit-button" onClick={handleSubmit}>
             Submit
           </button>
         </div>
 
+        {/* ✅ Popups */}
         {popupVisible && <div className="popup">Results have been successfully sent!</div>}
+
+        {missingInfoPopup && <div className="popup popup-danger">Missing personal information.</div>}
+
+        {missingDecisionsPopup && <div className="popup popup-warn">Missing decisions for one or more latents.</div>}
       </main>
       <Footer />
     </div>
