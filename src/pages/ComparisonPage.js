@@ -81,27 +81,70 @@ const ComparisonPage = () => {
   const comboKey = buildComboKey({ caseId, latentIndex, personId, fingerIndex });
   const comboStatus = caseData.decisions?.[comboKey] || null; // 'identify' | 'exclude' | null
 
-  const setIdentify = () => {
-    // Identify this latent as the currently selected person/finger
+  // =========================
+  // Confirm modal for Identify overwrite
+  // =========================
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingIdentify, setPendingIdentify] = useState(null);
+  // pendingIdentify: { latentIndex, personId, fingerIndex, comboKey }
+
+  const getCurrentIdentifyForLatent = (latentNum) => {
+    return caseData.identifiedByLatent?.[`latent:${latentNum}`] || null;
+  };
+
+  const applyIdentify = ({ latentIndex: lNum, personId: pId, fingerIndex: fNum, comboKey: key }) => {
     setCaseData((prev) => {
       const next = structuredClone(prev);
 
-      // set this combo to identify
-      next.decisions[comboKey] = 'identify';
+      next.decisions[key] = 'identify';
+      next.identifiedByLatent[`latent:${lNum}`] = { personId: pId, fingerIndex: fNum };
 
-      // set the "final answer" for this latent (used later to prefill submission)
-      next.identifiedByLatent[`latent:${latentIndex}`] = { personId, fingerIndex };
-
-      // optional: keep only ONE identify per latent by clearing other identify entries for same latent
+      // Keep only one identify per latent
       Object.keys(next.decisions).forEach((k) => {
-        const sameLatent = k.includes(`case:${caseId}|latent:${latentIndex}|`);
-        if (sameLatent && k !== comboKey && next.decisions[k] === 'identify') {
+        const sameLatent = k.includes(`case:${caseId}|latent:${lNum}|`);
+        if (sameLatent && k !== key && next.decisions[k] === 'identify') {
           delete next.decisions[k];
         }
       });
 
       return next;
     });
+  };
+
+  const requestIdentify = () => {
+    const current = getCurrentIdentifyForLatent(latentIndex);
+
+    const sameAsCurrent =
+      current &&
+      Number(current.personId) === Number(personId) &&
+      Number(current.fingerIndex) === Number(fingerIndex);
+
+    if (sameAsCurrent) {
+      // Already the same; no confirm needed
+      applyIdentify({ latentIndex, personId, fingerIndex, comboKey });
+      return;
+    }
+
+    if (current) {
+      // Overwrite confirm
+      setPendingIdentify({ latentIndex, personId, fingerIndex, comboKey });
+      setConfirmOpen(true);
+      return;
+    }
+
+    applyIdentify({ latentIndex, personId, fingerIndex, comboKey });
+  };
+
+  const confirmUpdateIdentify = () => {
+    if (!pendingIdentify) return;
+    applyIdentify(pendingIdentify);
+    setPendingIdentify(null);
+    setConfirmOpen(false);
+  };
+
+  const cancelUpdateIdentify = () => {
+    setPendingIdentify(null);
+    setConfirmOpen(false);
   };
 
   const setExclude = () => {
@@ -127,7 +170,6 @@ const ComparisonPage = () => {
     });
   };
 
-
   const clearDecision = () => {
     setCaseData((prev) => {
       const next = structuredClone(prev);
@@ -135,10 +177,8 @@ const ComparisonPage = () => {
       const latentKey = `latent:${latentIndex}`;
       const wasIdentify = next.decisions?.[comboKey] === 'identify';
 
-      // remove this combo decision
       delete next.decisions[comboKey];
 
-      // if we just cleared the identified combo, also remove the final answer
       const currentIdent = next.identifiedByLatent?.[latentKey];
       if (
         wasIdentify &&
@@ -152,7 +192,6 @@ const ComparisonPage = () => {
       return next;
     });
   };
-
 
   // =========================
   // Existing handlers
@@ -185,13 +224,11 @@ const ComparisonPage = () => {
 
     editor.canvas.clear();
 
-    // Keep your original scaling approach
     editor.canvas.setBackgroundImage(imageUrl, editor.canvas.renderAll.bind(editor.canvas), {
       scaleX: editor.canvas.width / 500,
       scaleY: editor.canvas.height / 500,
     });
 
-    // Restore dots (with color)
     const savedDots = JSON.parse(localStorage.getItem(imageUrl)) || [];
     savedDots.forEach((dot) => {
       const restoredDot = new Circle({
@@ -242,7 +279,6 @@ const ComparisonPage = () => {
     [dotColor]
   );
 
-  // Attach click handler (prevents stacking multiple handlers)
   const handleCanvasClick = useCallback(
     (editor, imageUrl, history, sideName) => {
       if (!editor?.canvas) return;
@@ -258,7 +294,6 @@ const ComparisonPage = () => {
     [addDot]
   );
 
-  // Load known canvas when image changes
   useEffect(() => {
     if (!knownEditor) return;
     loadImageToCanvas(knownEditor, selectedPrint);
@@ -266,7 +301,6 @@ const ComparisonPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knownEditor, selectedPrint, handleCanvasClick]);
 
-  // Load latent canvas when image changes
   useEffect(() => {
     if (!latentEditor) return;
     loadImageToCanvas(latentEditor, selectedLatentPrint);
@@ -282,11 +316,9 @@ const ComparisonPage = () => {
     const dots = editor.canvas.getObjects().filter((obj) => obj.type === 'circle');
     if (dots.length === 0) return;
 
-    // Save for undo
     history.undo.push({ type: 'clear', objects: dots, imageUrl });
     history.redo = [];
 
-    // Remove dots + clear storage for this image
     dots.forEach((d) => editor.canvas.remove(d));
     editor.canvas.renderAll();
     localStorage.removeItem(imageUrl);
@@ -300,22 +332,18 @@ const ComparisonPage = () => {
     if (!action) return;
 
     if (action.type === 'add') {
-      // remove the dot
       editor.canvas.remove(action.object);
       editor.canvas.renderAll();
 
-      // remove last saved dot for that image (simple approach)
       const saved = JSON.parse(localStorage.getItem(imageUrl)) || [];
       saved.pop();
       localStorage.setItem(imageUrl, JSON.stringify(saved));
     }
 
     if (action.type === 'clear') {
-      // re-add all removed dots
       action.objects.forEach((o) => editor.canvas.add(o));
       editor.canvas.renderAll();
 
-      // rebuild storage from current dots
       const circles = editor.canvas.getObjects().filter((o) => o.type === 'circle');
       const rebuilt = circles.map((c) => ({ x: c.left, y: c.top, color: c.fill }));
       localStorage.setItem(imageUrl, JSON.stringify(rebuilt));
@@ -349,24 +377,17 @@ const ComparisonPage = () => {
     history.undo.push(action);
   };
 
+  // ============ Status helpers ============
   const getLatentStatus = (latentNum) => {
     const latentKey = `latent:${latentNum}`;
 
-    // 🟢 Identified
-    if (caseData.identifiedByLatent?.[latentKey]) {
-      return 'identified';
-    }
+    if (caseData.identifiedByLatent?.[latentKey]) return 'identified';
 
-    // 🟡 Has exclusions but no identify
     const hasExclusions = Object.entries(caseData.decisions || {}).some(
-      ([key, value]) =>
-        key.includes(`case:${caseId}|latent:${latentNum}|`) &&
-        value === 'exclude'
+      ([key, value]) => key.includes(`case:${caseId}|latent:${latentNum}|`) && value === 'exclude'
     );
 
     if (hasExclusions) return 'in-progress';
-
-    // ⚪ Untouched
     return 'none';
   };
 
@@ -376,13 +397,30 @@ const ComparisonPage = () => {
       latentIndex,
       personId: selectedPerson.id,
       fingerIndex: fingerNum,
-  });
+    });
 
-  return caseData.decisions?.[key] || 'none'; // 'identify' | 'exclude' | 'none'
-};
+    return caseData.decisions?.[key] || 'none';
+  };
 
+  const jumpToLatent = (latentNum) => {
+    setSelectedLatentPrint(latentPrints[latentNum - 1]);
 
-  // ======================================
+    const latentKey = `latent:${latentNum}`;
+    const ident = caseData.identifiedByLatent?.[latentKey];
+
+    if (ident) {
+      const p = people.find((x) => x.id === Number(ident.personId));
+      if (p) {
+        setSelectedPerson(p);
+
+        const fingerNum = Number(ident.fingerIndex);
+        if (fingerNum >= 1 && fingerNum <= 10) {
+          setSelectedPrint(p.prints[fingerNum - 1]);
+        }
+      }
+      setActiveSide('known');
+    }
+  };
 
   return (
     <div>
@@ -472,14 +510,14 @@ const ComparisonPage = () => {
                     <div
                       key={i}
                       className={`latent-status-pill latent-${status}`}
-                      onClick={() => setSelectedLatentPrint(latentPrints[i])}
+                      onClick={() => jumpToLatent(i + 1)}
+                      title={status === 'identified' ? 'Jump to identified match' : 'Switch latent'}
                     >
                       {i + 1}
                     </div>
                   );
                 })}
               </div>
-
             </section>
           </div>
 
@@ -496,12 +534,7 @@ const ComparisonPage = () => {
 
             <div className="tools-section">
               <label className="tools-label">Dot Color</label>
-              <input
-                className="tools-color"
-                type="color"
-                value={dotColor}
-                onChange={(e) => setDotColor(e.target.value)}
-              />
+              <input className="tools-color" type="color" value={dotColor} onChange={(e) => setDotColor(e.target.value)} />
             </div>
 
             <div className="tools-section tools-row">
@@ -527,7 +560,7 @@ const ComparisonPage = () => {
                 <button
                   type="button"
                   className={`tools-btn ${comboStatus === 'identify' ? 'tools-identify-active' : ''}`}
-                  onClick={setIdentify}
+                  onClick={requestIdentify}
                 >
                   Identify
                 </button>
@@ -546,12 +579,6 @@ const ComparisonPage = () => {
               </button>
             </div>
 
-            {/* <div className="tools-section tools-hint">
-              Tip: click on the print to place dots. Tools apply to the canvas you clicked last.
-              <br />
-              Decision is saved per (Latent + Person + Finger).
-            </div> */}
-
             <div className="tools-section">
               <button className="submit-button" onClick={() => navigate(`/submission/${caseId}`)}>
                 Go to Submissions
@@ -559,6 +586,30 @@ const ComparisonPage = () => {
             </div>
           </aside>
         </div>
+
+        {/* Confirm modal */}
+        {confirmOpen && (
+          <div className="modal-overlay" role="dialog" aria-modal="true">
+            <div className="modal-card">
+              <h3 className="modal-title">Update identified match?</h3>
+
+              <p className="modal-text">
+                This latent is already identified to a different person/finger.
+                <br />
+                Do you want to update it to <b>Person {personId}</b> / <b>Finger {fingerIndex}</b>?
+              </p>
+
+              <div className="modal-actions">
+                <button type="button" className="modal-btn modal-cancel" onClick={cancelUpdateIdentify}>
+                  Cancel
+                </button>
+                <button type="button" className="modal-btn modal-confirm" onClick={confirmUpdateIdentify}>
+                  Update
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>

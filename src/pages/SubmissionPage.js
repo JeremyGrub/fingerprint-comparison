@@ -8,56 +8,90 @@ import Footer from '../components/Footer';
 const people = [
   { id: 1, name: 'Person 1' },
   { id: 2, name: 'Person 2' },
-  { id: 3, name: 'Person 3' }
+  { id: 3, name: 'Person 3' },
 ];
 
 const fingers = Array.from({ length: 10 }, (_, i) => `Finger ${i + 1}`);
 
 const SubmissionPage = () => {
   const { caseId } = useParams();
+  const navigate = useNavigate();
 
   const STORAGE_KEY = `lla_case_${caseId}_decisions`;
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    latents: Array(5).fill(null).map(() => ({ person: '', finger: '' })),
+    latents: Array(5)
+      .fill(null)
+      .map(() => ({ person: '', finger: '' })),
   });
 
   const [popupVisible, setPopupVisible] = useState(false);
 
-  // ✅ Prefill from ComparisonPage Identify decisions
+  // Prefill from ComparisonPage Identify decisions + auto Exclude All
   useEffect(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
       const identifiedByLatent = stored.identifiedByLatent || {};
+      const decisions = stored.decisions || {};
 
-      // build a new latents array prefilled when available
-      const prefilledLatents = Array(5).fill(null).map((_, i) => {
-        const latentKey = `latent:${i + 1}`;
-        const found = identifiedByLatent[latentKey];
+      const expectedTotal = people.length * 10; // 3 persons x 10 fingers = 30
 
-        if (!found) return { person: '', finger: '' };
+      const prefilledLatents = Array(5)
+        .fill(null)
+        .map((_, i) => {
+          const latentNum = i + 1;
+          const latentKey = `latent:${latentNum}`;
+          const found = identifiedByLatent[latentKey];
 
-        return {
-          person: String(found.personId ?? ''),
-          finger: found.fingerIndex ? `Finger ${found.fingerIndex}` : '',
-        };
-      });
+          // Count excluded combos for this latent
+          const excludedCount = Object.entries(decisions).reduce((count, [key, value]) => {
+            const isThisLatent = key.includes(`case:${caseId}|latent:${latentNum}|`);
+            if (isThisLatent && value === 'exclude') return count + 1;
+            return count;
+          }, 0);
+
+          const isExcludeAll = !found && excludedCount === expectedTotal;
+
+          if (isExcludeAll) {
+            return { person: 'exclude_all', finger: 'N/A' };
+          }
+
+          if (found) {
+            return {
+              person: String(found.personId ?? ''),
+              finger: found.fingerIndex ? `Finger ${found.fingerIndex}` : '',
+            };
+          }
+
+          return { person: '', finger: '' };
+        });
 
       setFormData((prev) => ({
         ...prev,
         latents: prefilledLatents,
       }));
     } catch (e) {
-      // if parsing fails, just don't prefill
       console.log('No prefill available:', e);
     }
-  }, [STORAGE_KEY]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseId]);
 
   const handleInputChange = (index, field, value) => {
     const newLatents = formData.latents.slice();
     newLatents[index] = { ...newLatents[index], [field]: value };
+
+    // If user chooses Exclude All, force finger to N/A
+    if (field === 'person' && value === 'exclude_all') {
+      newLatents[index].finger = 'N/A';
+    }
+
+    // If user switches away from Exclude All, clear finger for safety
+    if (field === 'person' && value !== 'exclude_all' && newLatents[index].finger === 'N/A') {
+      newLatents[index].finger = '';
+    }
+
     setFormData({ ...formData, latents: newLatents });
   };
 
@@ -65,16 +99,21 @@ const SubmissionPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const formatLatentLine = (latent) => {
+    if (latent.person === 'exclude_all') return 'Exclude All';
+    return `Person ${latent.person} / ${latent.finger}`;
+  };
+
   const sendEmail = () => {
     const templateParams = {
       case_id: caseId,
       name: formData.name,
       email: formData.email,
-      latent1: `Person ${formData.latents[0].person} / ${formData.latents[0].finger}`,
-      latent2: `Person ${formData.latents[1].person} / ${formData.latents[1].finger}`,
-      latent3: `Person ${formData.latents[2].person} / ${formData.latents[2].finger}`,
-      latent4: `Person ${formData.latents[3].person} / ${formData.latents[3].finger}`,
-      latent5: `Person ${formData.latents[4].person} / ${formData.latents[4].finger}`,
+      latent1: formatLatentLine(formData.latents[0]),
+      latent2: formatLatentLine(formData.latents[1]),
+      latent3: formatLatentLine(formData.latents[2]),
+      latent4: formatLatentLine(formData.latents[3]),
+      latent5: formatLatentLine(formData.latents[4]),
     };
 
     emailjs
@@ -96,8 +135,6 @@ const SubmissionPage = () => {
     sendEmail();
   };
 
-  const navigate = useNavigate();
-
   return (
     <div>
       <Header />
@@ -117,63 +154,68 @@ const SubmissionPage = () => {
             </div>
           </div>
 
-          {formData.latents.map((latent, index) => (
-            <div key={index} className="form-card">
-              <h3>Latent {index + 1}</h3>
+          {formData.latents.map((latent, index) => {
+            const isExcludeAll = latent.person === 'exclude_all';
 
-              <div>
-                <label>Person:</label>
-                <select
-                  value={latent.person}
-                  onChange={(e) => handleInputChange(index, 'person', e.target.value)}
-                  required
-                >
-                  <option value="">Select Person</option>
-                  {people.map((person) => (
-                    <option key={person.id} value={person.id}>
-                      {person.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            return (
+              <div key={index} className="form-card">
+                <h3>Latent {index + 1}</h3>
 
-              <div>
-                <label>Finger:</label>
-                <select
-                  value={latent.finger}
-                  onChange={(e) => handleInputChange(index, 'finger', e.target.value)}
-                  required
-                >
-                  <option value="">Select Finger</option>
-                  {fingers.map((finger, i) => (
-                    <option key={i} value={finger}>
-                      {finger}
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <label>Person:</label>
+                  <select
+                    value={latent.person}
+                    onChange={(e) => handleInputChange(index, 'person', e.target.value)}
+                    required
+                  >
+                    <option value="">Select Person</option>
+
+                    {/* Always available manual option */}
+                    <option value="exclude_all">Exclude All</option>
+
+                    {people.map((person) => (
+                      <option key={person.id} value={person.id}>
+                        {person.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label>Finger:</label>
+                  <select
+                    value={latent.finger}
+                    onChange={(e) => handleInputChange(index, 'finger', e.target.value)}
+                    required={!isExcludeAll}
+                    disabled={isExcludeAll}
+                  >
+                    <option value="">{isExcludeAll ? 'N/A' : 'Select Finger'}</option>
+
+                    {isExcludeAll ? (
+                      <option value="N/A">N/A</option>
+                    ) : (
+                      fingers.map((finger, i) => (
+                        <option key={i} value={finger}>
+                          {finger}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </form>
 
         <div className="submission-actions">
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => navigate(`/comparison/${caseId}`)}
-          >
+          <button type="button" className="secondary-button" onClick={() => navigate(`/comparison/${caseId}`)}>
             Back to Comparisons
           </button>
 
-          <button
-            type="submit"
-            className="submit-button"
-            onClick={handleSubmit}
-          >
+          <button type="submit" className="submit-button" onClick={handleSubmit}>
             Submit
           </button>
         </div>
-
 
         {popupVisible && <div className="popup">Results have been successfully sent!</div>}
       </main>
