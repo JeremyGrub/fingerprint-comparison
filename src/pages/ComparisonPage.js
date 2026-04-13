@@ -273,12 +273,6 @@ const ComparisonPage = () => {
       opt.e.preventDefault();
       opt.e.stopPropagation();
     });
-
-    // Double-click resets zoom
-    canvas.on('mouse:dblclick', () => {
-      canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-      canvas.renderAll();
-    });
   }, []);
 
   const addDot = useCallback(
@@ -316,16 +310,14 @@ const ComparisonPage = () => {
       editor.canvas.off('mouse:move');
       editor.canvas.off('mouse:up');
 
-      // Track drag state locally per canvas binding
-      let isDragging  = false;
-      let lastX       = 0;
-      let lastY       = 0;
-      let startX      = 0;
-      let startY      = 0;
-      const PAN_THRESHOLD = 5; // px moved before we treat it as a pan
+      let isDragging = false;
+      let lastX      = 0;
+      let lastY      = 0;
+      let startX     = 0;
+      let startY     = 0;
+      const PAN_THRESHOLD = 5; // px before treating movement as a pan
 
       editor.canvas.on('mouse:down', (opt) => {
-        // Mark which canvas is active
         setActiveSide(sideName);
         if (sideName === 'known') setMobileTab('known');
         else setMobileTab('latent');
@@ -338,12 +330,11 @@ const ComparisonPage = () => {
 
       editor.canvas.on('mouse:move', (opt) => {
         const e = opt.e;
-        if (!e.buttons) return; // only while mouse button held
+        if (!e.buttons) return;
 
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
 
-        // Upgrade to pan mode once we move beyond threshold
         if (!isDragging && Math.sqrt(dx * dx + dy * dy) > PAN_THRESHOLD) {
           isDragging = true;
         }
@@ -361,7 +352,7 @@ const ComparisonPage = () => {
 
       editor.canvas.on('mouse:up', (opt) => {
         if (!isDragging) {
-          // Short click — place a dot
+          // Instant dot placement — no delay
           const pointer = editor.canvas.getPointer(opt.e);
           addDot(editor, pointer, imageUrl, history);
         }
@@ -464,22 +455,33 @@ const ComparisonPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSide, knownEditor, latentEditor, selectedPrint, selectedLatentPrint]);
 
+  // Reset zoom + pan on both canvases
+  const resetView = useCallback(() => {
+    [knownEditor, latentEditor].forEach((ed) => {
+      if (ed?.canvas) {
+        ed.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+        ed.canvas.requestRenderAll();
+      }
+    });
+  }, [knownEditor, latentEditor]);
+
   // =========================
   // Keyboard shortcuts
   // =========================
   const actionsRef = useRef({});
-  actionsRef.current = { undoActive, redoActive, requestIdentify, setExclude, clearDecision, clearDotsActive };
+  actionsRef.current = { undoActive, redoActive, requestIdentify, setExclude, clearDecision, clearDotsActive, resetView };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
       if (e.metaKey || e.ctrlKey) return;
       switch (e.key.toLowerCase()) {
-        case 'u': actionsRef.current.undoActive();    break;
+        case 'u': actionsRef.current.undoActive();      break;
         case 'r': e.preventDefault(); actionsRef.current.redoActive(); break;
         case 'i': actionsRef.current.requestIdentify(); break;
-        case 'e': actionsRef.current.setExclude();   break;
-        case 'x': actionsRef.current.clearDecision(); break;
+        case 'e': actionsRef.current.setExclude();      break;
+        case 'x': actionsRef.current.clearDecision();   break;
+        case 'z': actionsRef.current.resetView();       break;
         default:  break;
       }
     };
@@ -541,7 +543,7 @@ const ComparisonPage = () => {
         <div className="comparison-header">
           <h2 className="comparison-title">Print Comparison</h2>
           <span className="comparison-case-id">CASE-{String(caseId).padStart(3, '0')}</span>
-          <span className="comparison-subtitle">Click to place dots · Scroll to zoom · Drag to pan · Double-click to reset</span>
+          <span className="comparison-subtitle">Click to place dots · Scroll to zoom · Drag to pan · Z to reset view</span>
         </div>
 
         {/* Mobile tab bar */}
@@ -590,7 +592,7 @@ const ComparisonPage = () => {
 
               <div className="image-frame">
                 <FabricJSCanvas className="canvas" onReady={onReadyKnown} />
-                <span className="zoom-hint">scroll=zoom · drag=pan · dbl=reset</span>
+                <span className="zoom-hint">scroll=zoom · drag=pan</span>
               </div>
 
               <div className="finger-status-row">
@@ -629,7 +631,7 @@ const ComparisonPage = () => {
 
               <div className="image-frame">
                 <FabricJSCanvas className="canvas" onReady={onReadyLatent} />
-                <span className="zoom-hint">scroll=zoom · drag=pan · dbl=reset</span>
+                <span className="zoom-hint">scroll=zoom · drag=pan</span>
               </div>
 
               <div className="latent-status-row">
@@ -683,6 +685,13 @@ const ComparisonPage = () => {
                   Redo <span className="kb">R</span>
                 </button>
               </div>
+            </div>
+
+            {/* Reset view */}
+            <div className="tools-section">
+              <button type="button" className="tools-btn" onClick={resetView}>
+                Reset View <span className="kb">Z</span>
+              </button>
             </div>
 
             {/* Clear minutiae */}
