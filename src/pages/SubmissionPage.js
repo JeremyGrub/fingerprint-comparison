@@ -192,12 +192,12 @@ const SubmissionPage = () => {
                 />
               </div>
               <div className="form-row">
-                <label htmlFor="email">Professor's Email</label>
+                <label htmlFor="email">Instructor's Email</label>
                 <input
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="professor@university.edu"
+                  placeholder="instructor@school.edu"
                   value={formData.email}
                   onChange={handleChange}
                 />

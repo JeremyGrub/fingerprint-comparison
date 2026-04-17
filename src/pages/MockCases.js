@@ -46,7 +46,7 @@ const MockCases = () => {
               <li className="list-space">Click directly on images to place dot markers on minutiae and characteristics</li>
               <li className="list-space">Use <strong>Identify</strong> to match a latent to a person and finger, or <strong>Exclude</strong> to rule them out</li>
               <li className="list-space">Once you have a conclusion for all 5 latents, click <strong>Go to Submissions</strong></li>
-              <li className="list-space">Your results will be emailed to your professor who holds the answers</li>
+              <li className="list-space">Your results will be emailed to your instructor who holds the answers</li>
               <li className="list-space">Good luck — examine carefully!</li>
             </ul>
           </motion.section>
